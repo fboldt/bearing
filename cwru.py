@@ -1,8 +1,90 @@
-import urllib.request
-import os.path
+"""
+Class definition of CWRU datasest.
+"""
 
-def download_database():
+# Author: Lucio Venturim <lucioventurim@gmail.com> 
+# Francisco Boldt <fboldt@gmail.com>
+
+import urllib.request
+import os
+import database
+import scipy.io
+import numpy as np
+
+class CWRU(database.Database):
+  """
+  CWRU class wrapper for experiment framework.
+  """
+  def __init__(self):
+    self.files = files_12khz()
+    self.rawfilesdir = "database_raw"
+    self.dirdest = "database"
+    self.url="http://csegroups.case.edu/sites/default/files/bearingdatacenter/files/Datafiles/"
+
+  def download(self):
+    """
+    Download Matlab files from CWRU website.
+    """
+    matlab_files_name = self.files
+    url = self.url
+    n = len(matlab_files_name)
+    dirname = self.rawfilesdir
+    if not os.path.isdir(dirname):
+      os.mkdir(dirname)
+    for i,key in enumerate(matlab_files_name):
+      file_name = matlab_files_name[key]
+      if not os.path.exists(os.path.join(dirname, file_name)):
+        urllib.request.urlretrieve(url+file_name, os.path.join(dirname, file_name))
+      print("{}/{}\t{}\t{}".format(i+1, n, key, file_name))
   
+  def segmentate(self):
+    """
+    Segmentate Matlab files by main condition, i.e. Normal, Ball, InnerRace and OuterRace.
+    """
+    dirdest = self.dirdest
+    if not os.path.isdir(dirdest):
+      os.mkdir(dirdest)
+    conditions = {"r":"normal", 
+                  "B": "ball", 
+                  "I": "inner", 
+                  "O": "outer"}
+    for key, condition in conditions.items():
+      if not os.path.isdir(os.path.join(dirdest, condition)):
+        os.mkdir(os.path.join(dirdest, condition))
+    matlab_files_name = self.files
+    acquisitions = get_tensors_from_matlab(matlab_files_name, self.rawfilesdir)
+    sample_size=512
+    data = np.empty((0,sample_size,1))
+    n = len(acquisitions)
+    for i,key in enumerate(acquisitions):
+      acquisition_size = len(acquisitions[key])
+      n_samples = acquisition_size//sample_size
+      print('{}/{} --- {}: {}'.format(i+1, n, key, n_samples))
+      data = acquisitions[key][:(n_samples*sample_size)].reshape((n_samples,sample_size,1))
+      for j in range(n_samples):
+        file_name = os.path.join(dirdest, conditions[key[2]], key+str(j)+'.csv')
+        if not os.path.exists(file_name):
+          np.savetxt(file_name, data[j], delimiter=',')
+
+def files_12khz():
+  """
+  Associate each Matlab file name to a bearing condition in a Python dictionary. 
+  The dictionary keys identify the conditions.
+  
+  There are only four normal conditions, with loads of 0, 1, 2 and 3 hp. 
+  All conditions end with an underscore character followed by an algarism 
+  representing the load applied during the acquisitions. 
+  The remaining conditions follow the pattern:
+  
+  First two characters represent the bearing location, 
+  .e. drive end (DE) and fan end (FE). 
+  The following two characters represent the failure location in the bearing, 
+  i.e. ball (BA), Inner Race (IR) and Outer Race (OR). 
+  The next three algarisms indicate the severity of the failure, 
+  where 007 stands for 0.007 inches and 0021 for 0.021 inches. 
+  For Outer Race failures, the character @ is followed by a number 
+  that indicates different load zones.
+  """
   matlab_files_name = {}
   # Normal
   matlab_files_name["Normal_0"] = "97.mat"
@@ -142,12 +224,19 @@ def download_database():
   matlab_files_name["DEB.028_1"] = "3006.mat"
   matlab_files_name["DEB.028_2"] = "3007.mat"
   matlab_files_name["DEB.028_3"] = "3008.mat"
-  
-  url="http://csegroups.case.edu/sites/default/files/bearingdatacenter/files/Datafiles/"
-  n = len(matlab_files_name)
-  for i,key in enumerate(matlab_files_name):
-    file_name = matlab_files_name[key]
-    if not os.path.exists(file_name):
-      urllib.request.urlretrieve(url+file_name, file_name)
-    print("{}/{}\t{}\t{}".format(i+1, n, key, file_name))
+  return matlab_files_name
 
+def get_tensors_from_matlab(matlab_files_name, rawfilesdir=""):
+  """
+  Extracts the acquisitions of each Matlab file in the dictionary matlab_files_name.
+  """
+  acquisitions = {}
+  for key in matlab_files_name:
+    file_name = os.path.join(rawfilesdir, matlab_files_name[key])
+    matlab_file = scipy.io.loadmat(file_name)
+    for position in ['DE','FE', 'BA']:
+      keys = [key for key in matlab_file if key.endswith(position+"_time")]
+      if len(keys)>0:
+        array_key = keys[0]
+        acquisitions[key+position.lower()] = matlab_file[array_key].reshape(1,-1)[0]
+  return acquisitions
