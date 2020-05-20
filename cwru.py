@@ -1,5 +1,5 @@
 """
-Class definition of CWRU datasest.
+Class definition for CWRU dataset.
 """
 
 # Author: Lucio Venturim <lucioventurim@gmail.com> 
@@ -11,12 +11,58 @@ import database
 import scipy.io
 import numpy as np
 
+def files_debug():
+  """
+  Associate each Matlab file name to a bearing condition in a Python dictionary. 
+  The dictionary keys identify the conditions.
+  
+  NOTE: Used only for debug.
+  """
+
+  matlab_files_name = {}
+  # Normal
+  matlab_files_name["Normal_0"] = "97.mat"
+  # DE Inner Race 0.007 inches
+  matlab_files_name["DEIR.007_0"] = "105.mat"
+  # DE Ball 0.007 inches
+  matlab_files_name["DEB.007_0"] = "118.mat"
+  # DE Outer race 0.007 inches centered @6:00
+  matlab_files_name["DEOR.007@6_0"] = "130.mat"
+  return matlab_files_name
+
 class CWRU(database.Database):
   """
   CWRU class wrapper for experiment framework.
+
+  ...
+  Attributes
+  ----------
+  files : dict
+    the keys represent the conditions and the values are the files names
+  rawfilesdir : str
+    directory name where the files will be downloaded
+  dirdest : str
+    directory name of the segmented files
+  url : str
+    website from the raw matlab files are downloaded
+  
+  Methods
+  -------
+  download()
+    Download raw matlab files from CWRU website
+  segmentate()
+    Semgmentate the raw matlab files in various .csv files
   """
-  def __init__(self):
-    self.files = files_12khz()
+
+  def __init__(self, files=files_debug()):
+    """
+    Parameters
+    ----------
+    files : dict
+      keys are the conditions and the values are the matlab file name
+    """
+
+    self.files = files
     self.rawfilesdir = "database_raw"
     self.dirdest = "database"
     self.url="http://csegroups.case.edu/sites/default/files/bearingdatacenter/files/Datafiles/"
@@ -24,7 +70,11 @@ class CWRU(database.Database):
   def download(self):
     """
     Download Matlab files from CWRU website.
+
+    It may be used to keep the matlab files as a cache memory.
+    Once downloaded the matlab file, it does not need to be downoaded again.
     """
+
     matlab_files_name = self.files
     url = self.url
     n = len(matlab_files_name)
@@ -39,8 +89,15 @@ class CWRU(database.Database):
   
   def segmentate(self):
     """
-    Segmentate Matlab files by main condition, i.e. Normal, Ball, InnerRace and OuterRace.
+    Segmentate Matlab files by the four main conditions, 
+    i.e. Normal, Ball, Inner Race and Outer Race.
+
+    It saves the segmented files in four directories,
+    i.e. normal, ball, inner and outer.
+    NOTE: This is the first idea and it will problably
+    be changed in a near future.
     """
+
     dirdest = self.dirdest
     if not os.path.isdir(dirdest):
       os.mkdir(dirdest)
@@ -85,6 +142,7 @@ def files_12khz():
   For Outer Race failures, the character @ is followed by a number 
   that indicates different load zones.
   """
+
   matlab_files_name = {}
   # Normal
   matlab_files_name["Normal_0"] = "97.mat"
@@ -229,7 +287,26 @@ def files_12khz():
 def get_tensors_from_matlab(matlab_files_name, rawfilesdir=""):
   """
   Extracts the acquisitions of each Matlab file in the dictionary matlab_files_name.
+
+  The user must be careful because this function converts all matlab files
+  in the matlab_files_name in numpy arrays.
+  As large the number of entries in matlab_files_name 
+  as large will be the space of memory necessary.
+
+  Atributes
+  ---------
+  matlab_files_name : dict
+    the keys represent the conditions and the values are the matlab file names
+  rawfilesdir : str
+    directory where the matlab files are
+  
+  Returns
+  -------
+  acquisitions : dict
+    the keys represent the condition and the acquisition accelerometer and
+    the values are numpy arrays with the acquired signal in the time domain.
   """
+
   acquisitions = {}
   for key in matlab_files_name:
     file_name = os.path.join(rawfilesdir, matlab_files_name[key])
@@ -240,3 +317,11 @@ def get_tensors_from_matlab(matlab_files_name, rawfilesdir=""):
         array_key = keys[0]
         acquisitions[key+position.lower()] = matlab_file[array_key].reshape(1,-1)[0]
   return acquisitions
+
+def main():
+  database = CWRU()
+  database.download()
+  database.segmentate()
+
+if __name__ == "__main__":
+  main()
