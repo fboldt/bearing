@@ -12,6 +12,7 @@ import scipy.io
 import numpy as np
 from os import listdir
 from os.path import isfile, join
+from numpy import genfromtxt
 
 # Unpack Tools
 !pip install pyunpack
@@ -46,9 +47,11 @@ class IMS(database.Database):
     files_names = files_IMS(dirname)
 
     print(files_names)
+    self.files = files_names
     
   def segmentate(self):
-      pass
+      acquisitions = get_tensors_from_files(self.files, self.rawfilesdir)
+      print (acquisitions)
    
   
 def files_IMS(dirfiles):
@@ -107,3 +110,45 @@ def files_IMS(dirfiles):
     files_names[key] = fourth_test_files[i-1]
 
   return files_names
+
+def get_tensors_from_files(files_names, rawfilesdir=""):
+  """
+  Extracts the acquisitions of each file in the dictionary files_names.
+  The user must be careful because this function converts all files
+  in the files_names in numpy arrays.
+  As large the number of entries in files_names 
+  as large will be the space of memory necessary.
+  Atributes
+  ---------
+  files_names : dict
+    the keys represent the conditions and the values are the files names
+  rawfilesdir : str
+    directory where the files are
+  
+  Returns
+  -------
+  acquisitions : dict
+    the keys represent the condition and
+    the values are numpy arrays with the acquired signal in the time domain.
+  """
+
+  acquisitions = {}
+  # fault_columns = [0, 4, 2, 6] # In this order, 0-normal, 4-inner, 2-outer, 6-ball
+  for key in files_names:
+    if "OR" in key:
+      file_name = os.path.join(rawfilesdir, "4th_test", "txt", files_names[key])
+    else:
+      file_name = os.path.join(rawfilesdir, "1st_test", files_names[key])
+    
+    file_data = genfromtxt(file_name, unpack=True)
+    
+    if "Normal" in key:
+      acquisitions[key] = file_data[0]
+    elif "IR" in key:
+      acquisitions[key] = file_data[4]
+    elif "OR" in key:
+      acquisitions[key] = file_data[2]
+    else:
+      acquisitions[key] = file_data[6]
+
+  return acquisitions
