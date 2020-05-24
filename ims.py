@@ -23,6 +23,25 @@ from pyunpack import Archive
 class IMS(database.Database):
   """
   IMS class wrapper for experiment framework.
+
+  ...
+  Attributes
+  ----------
+  rawfilesdir : str
+    directory name where the files will be downloaded
+  dirdest : str
+    directory name of the segmented files
+  url : str
+    website from the raw files are downloaded
+  files : dict
+    the keys represent the conditions and the values are the files names
+  
+  Methods
+  -------
+  download()
+    Download raw compressed files from NASA website
+  segmentate()
+    Semgmentate the raw files in various .csv files
   """
   def __init__(self):
     #self.files = files_IMS()
@@ -32,7 +51,10 @@ class IMS(database.Database):
 
   def download(self):
     """
-    Download Matlab files from NASA website.
+    Download and extract compressed files from NASA website.
+
+    It may be used to keep the matlab files as a cache memory.
+    Once downloaded the compressed file, it does not need to be downoaded again.
     """
     url = self.url
     urllib.request.urlretrieve(url, "IMS.7z")
@@ -50,13 +72,44 @@ class IMS(database.Database):
     self.files = files_names
     
   def segmentate(self):
-      acquisitions = get_tensors_from_files(self.files, self.rawfilesdir)
-      print (acquisitions)
+    """
+    Segmentate files by the four main conditions, 
+    i.e. Normal, Ball, Inner Race and Outer Race.
+    It saves the segmented files in four directories,
+    i.e. normal, ball, inner and outer.
+    NOTE: This is the first idea and it will problably
+    be changed in a near future.
+    """
+    
+    dirdest = self.dirdest
+    if not os.path.isdir(dirdest):
+      os.mkdir(dirdest)
+    conditions = {"N":"normal", 
+                  "B": "ball", 
+                  "I": "inner", 
+                  "O": "outer"}
+    for key, condition in conditions.items():
+      if not os.path.isdir(os.path.join(dirdest, condition)):
+        os.mkdir(os.path.join(dirdest, condition))
+    files_names = self.files
+    acquisitions = get_tensors_from_files(files_names, self.rawfilesdir)
+    sample_size=512
+    data = np.empty((0,sample_size,1))
+    n = len(acquisitions)
+    for i,key in enumerate(acquisitions):
+      acquisition_size = len(acquisitions[key])
+      n_samples = acquisition_size//sample_size
+      print('{}/{} --- {}: {}'.format(i+1, n, key, n_samples))
+      data = acquisitions[key][:(n_samples*sample_size)].reshape((n_samples,sample_size,1))
+      for j in range(n_samples):
+        file_name = os.path.join(dirdest, conditions[key[0]], key+str(j)+'.csv')
+        if not os.path.exists(file_name):
+          np.savetxt(file_name, data[j], delimiter=',')
    
   
 def files_IMS(dirfiles):
   """
-  Associate each Matlab file name to a bearing condition in a Python dictionary. 
+  Associate each file name to a bearing condition in a Python dictionary. 
   The dictionary keys identify the conditions.
   
   Data taken from channel 1 of test 1 from 12:06:24 on 23/10/2003 
@@ -70,9 +123,10 @@ def files_IMS(dirfiles):
   All normal conditions end with an underscore character followed by an algarism 
   representing the sequence of the acquisitions. 
   The remaining conditions follow the pattern:
-  
   First two characters represent the failure location in the bearing, 
-  i.e. ball (BA), Inner Race (IR) and Outer Race (OR).
+  i.e. ball (BA), Inner Race (IR) and Outer Race (OR). All fault conditions end
+  with an underscore character followed by an algarism representing the 
+  sequence of the acquisitions.
   """
   files_names = {}
   
@@ -118,22 +172,29 @@ def get_tensors_from_files(files_names, rawfilesdir=""):
   in the files_names in numpy arrays.
   As large the number of entries in files_names 
   as large will be the space of memory necessary.
+  
+  IMS dataset files have 7 channels on the test 1 set and 4 channels on the 
+  test 4 set. Data taken from channel 1 of test 1 were considered normal.
+  For inner race fault and rolling element fault, data were taken from 
+  channel 5 and channel 7 respectively.
+  Outer race fault data were taken from channel 3 of test 4.
+
   Atributes
   ---------
   files_names : dict
-    the keys represent the conditions and the values are the files names
+    the keys represent the conditions and the values are the file names
   rawfilesdir : str
     directory where the files are
   
   Returns
   -------
   acquisitions : dict
-    the keys represent the condition and
+    the keys represent the condition and the acquisition sequential and
     the values are numpy arrays with the acquired signal in the time domain.
   """
 
   acquisitions = {}
-  # fault_columns = [0, 4, 2, 6] # In this order, 0-normal, 4-inner, 2-outer, 6-ball
+  
   for key in files_names:
     if "OR" in key:
       file_name = os.path.join(rawfilesdir, "4th_test", "txt", files_names[key])
