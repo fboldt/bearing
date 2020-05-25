@@ -93,7 +93,7 @@ class IMS(database.Database):
         os.mkdir(os.path.join(dirdest, condition))
     files_names = self.files
     acquisitions = get_tensors_from_files(files_names, self.rawfilesdir)
-    sample_size=512
+    sample_size=1024
     data = np.empty((0,sample_size,1))
     n = len(acquisitions)
     for i,key in enumerate(acquisitions):
