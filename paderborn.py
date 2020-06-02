@@ -162,7 +162,7 @@ def files_paderborn(dirfiles):
 
   settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
 
-  n = 20
+  n = 20 #Number of samples for each setting
 
   # Normal
   for folder in normal_folder:
@@ -191,7 +191,6 @@ def files_paderborn(dirfiles):
   return files_path
 
 
-### EM DESENVOLVIMENTO
 def get_tensors_from_files(files_names, rawfilesdir=""):
   """
   Extracts the acquisitions of each file in the dictionary files_names.
@@ -210,8 +209,21 @@ def get_tensors_from_files(files_names, rawfilesdir=""):
   Returns
   -------
   acquisitions : dict
-    the keys represent the condition and the acquisition sequential and
-    the values are numpy arrays with the acquired signal in the time domain.
+  The keys represent the bearing code, followed by the conditions, by an
+  algarism representing the setting and end with an algarism representing 
+  the sample sequential. All features are separated by an underscore character.
   """
 
   acquisitions = {}
+  for key in files_names:
+    if key != 'KA08_OR_2_2': # Dsiconsider this file (apparently corrupted)
+      matlab_file = scipy.io.loadmat(files_names[key])
+      if len(files_names[key])>40:
+        vibration_data=matlab_file[files_names[key][18:37]]['Y'][0][0][0][6][2]
+      else:
+        vibration_data=matlab_file[files_names[key][18:36]]['Y'][0][0][0][6][2]
+
+    print(key)
+    acquisitions[key] = vibration_data[0]
+
+  return acquisitions
