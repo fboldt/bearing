@@ -14,8 +14,8 @@ from os import listdir
 from os.path import isfile, join
 
 # Unpack Tools
-!pip install pyunpack
-!pip install patool
+pip install pyunpack
+pip install patool
 from pyunpack import Archive
 
 
@@ -221,8 +221,14 @@ def get_tensors_from_files(files_names, rawfilesdir=""):
         vibration_data=matlab_file[files_names[key][18:37]]['Y'][0][0][0][6][2]
       else:
         vibration_data=matlab_file[files_names[key][18:36]]['Y'][0][0][0][6][2]
-
     print(key)
     acquisitions[key] = vibration_data[0]
-
   return acquisitions
+
+def main():
+  database = Paderborn()
+  database.download()
+  database.segmentate()
+
+if __name__ == "__main__":
+  main()
