@@ -89,7 +89,6 @@ class Paderborn(database.Database): #database.Database # used in GitHub
     self.files = files_path
 
   def segmentate(self):
-    ### EM DESENVOLVIMENTO
     """
     Segmentate files by the three main conditions, 
     i.e. Normal, Inner Race and Outer Race.
