@@ -15,8 +15,8 @@ from os.path import isfile, join
 from numpy import genfromtxt
 
 # Unpack Tools
-!pip install pyunpack
-!pip install patool
+pip install pyunpack
+pip install patool
 from pyunpack import Archive
 
 
@@ -213,3 +213,11 @@ def get_tensors_from_files(files_names, rawfilesdir=""):
       acquisitions[key] = file_data[6]
 
   return acquisitions
+
+def main():
+  database = IMS()
+  database.download()
+  database.segmentate()
+
+if __name__ == "__main__":
+  main()
