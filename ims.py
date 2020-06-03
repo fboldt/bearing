@@ -15,9 +15,15 @@ from os.path import isfile, join
 from numpy import genfromtxt
 
 # Unpack Tools
-pip install pyunpack
-pip install patool
+import subprocess
+import sys
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pyunpack'])
 from pyunpack import Archive
+
+# Tools used in Jupyter Notebooks
+#!pip install pyunpack
+#!pip install patool
+#!from pyunpack import Archive
 
 
 class IMS(database.Database):
