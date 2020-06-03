@@ -63,8 +63,8 @@ class CWRU(database.Database):
     """
 
     self.files = files
-    self.rawfilesdir = "database_raw"
-    self.dirdest = "database"
+    self.rawfilesdir = "cwru_raw"
+    self.dirdest = "cwru_seg"
     self.url="http://csegroups.case.edu/sites/default/files/bearingdatacenter/files/Datafiles/"
 
   def download(self):
