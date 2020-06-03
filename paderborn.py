@@ -14,10 +14,15 @@ from os import listdir
 from os.path import isfile, join
 
 # Unpack Tools
-pip install pyunpack
-pip install patool
+import subprocess
+import sys
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pyunpack'])
 from pyunpack import Archive
 
+# Tools used in Jupyter Notebooks
+#!pip install pyunpack
+#!pip install patool
+#!from pyunpack import Archive
 
 class Paderborn(database.Database): #database.Database # used in GitHub
   """
