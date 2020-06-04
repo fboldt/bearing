@@ -24,6 +24,52 @@ from pyunpack import Archive
 #!pip install patool
 #!from pyunpack import Archive
 
+def files_debug(dirfiles):
+  """
+  Associate each Matlab file name to a bearing condition in a Python dictionary. 
+  The dictionary keys identify the conditions.
+  
+  NOTE: Used only for debug. Use "debug=1" on intialization.
+  """
+
+  files_path = {}
+  
+  normal_folder = ["K002"]
+  OR_folder = ["KA01"]
+  IR_folder = ["KI01"]
+  MIX_folder = ["KB23"] # VERIFICAR
+
+  settings_files = ["N15_M07_F10_", "N09_M07_F10_", "N15_M01_F10_", "N15_M07_F04_"]
+
+  n = 20
+
+  # Normal
+  for folder in normal_folder:
+    for idx, setting in enumerate(settings_files):
+      for i in range(1, n+1):
+        key = folder + "_Normal_" + str(idx) + "_" + str(i)
+        files_path[key] = os.path.join(dirfiles, folder, setting + folder +
+                                       "_" + str(i) + ".mat")
+
+  # OR
+  for folder in OR_folder:
+    for idx, setting in enumerate(settings_files):
+      for i in range(1, n+1):
+        key = folder + "_OR_" + str(idx) + "_" + str(i)
+        files_path[key] = os.path.join(dirfiles, folder, setting + folder +
+                                       "_" + str(i) + ".mat")
+
+  # IR
+  for folder in IR_folder:
+    for idx, setting in enumerate(settings_files):
+      for i in range(1, n+1):
+        key = folder + "_IR_" + str(idx) + "_" + str(i)
+        files_path[key] = os.path.join(dirfiles, folder, setting + folder +
+                                       "_" + str(i) + ".mat")
+
+  return files_path
+
+
 class Paderborn(database.Database): #database.Database # used in GitHub
   """
   Paderborn class wrapper for experiment framework.
@@ -47,9 +93,10 @@ class Paderborn(database.Database): #database.Database # used in GitHub
   segmentate()
     Semgmentate the raw files in various .csv files
   """
-  def __init__(self):
-    self.rawfilesdir = "database_raw"
-    self.dirdest = "database"
+  def __init__(self, debug=0):
+    self.debug=debug
+    self.rawfilesdir = "paderborn_raw"
+    self.dirdest = "paderborn_seg"
     self.url="http://groups.uni-paderborn.de/kat/BearingDataCenter/"
 
   def download(self):
@@ -60,35 +107,44 @@ class Paderborn(database.Database): #database.Database # used in GitHub
     Once downloaded the compressed file, it does not need to be downoaded again.
     """
     
-    # RAR Files names
-    rar_files_name = ["K001.rar","K002.rar","K003.rar","K004.rar","K005.rar","K006.rar",
-                  "KA01.rar", "KA03.rar", "KA04.rar", "KA05.rar", "KA06.rar", "KA07.rar", 
-                  "KA08.rar", "KA09.rar", "KA15.rar", "KA16.rar", "KA22.rar", "KA30.rar", 
-                  "KB23.rar", "KB24.rar", "KB27.rar", 
-                  "KI01.rar", "KI03.rar", "KI04.rar", "KI05.rar", "KI07.rar", "KI08.rar", 
-                  "KI14.rar", "KI16.rar", "KI17.rar", "KI18.rar", "KI21.rar"]
-       
+    # RAR Files names (debug choice with fewer files)
+    if self.debug==0:
+      rar_files_name = ["K001.rar","K002.rar","K003.rar","K004.rar","K005.rar","K006.rar",
+                    "KA01.rar", "KA03.rar", "KA04.rar", "KA05.rar", "KA06.rar", "KA07.rar", 
+                    "KA08.rar", "KA09.rar", "KA15.rar", "KA16.rar", "KA22.rar", "KA30.rar", 
+                    "KB23.rar", "KB24.rar", "KB27.rar", 
+                    "KI01.rar", "KI03.rar", "KI04.rar", "KI05.rar", "KI07.rar", "KI08.rar", 
+                    "KI14.rar", "KI16.rar", "KI17.rar", "KI18.rar", "KI21.rar"]
+    else:
+      rar_files_name = ["K002.rar", "KA01.rar", "KI01.rar"]
+
     url = self.url
     
+    dirname = self.rawfilesdir
+    dir_rar = "rar_files"
+    if not os.path.isdir(dirname):
+      os.mkdir(dirname)
+    if not os.path.isdir(os.path.join(dirname, dir_rar)):
+      os.mkdir(os.path.join(dirname, dir_rar))
+    
+
     print("Donwloading RAR files:")
     for i in rar_files_name:
       file_name = i
       if not os.path.exists(file_name):
-        urllib.request.urlretrieve(url+file_name, file_name)
+        urllib.request.urlretrieve(url+file_name, os.path.join(dirname, dir_rar, file_name))
       print(file_name)
-    
-    
-    dirname = self.rawfilesdir
-    if not os.path.isdir(dirname):
-      os.mkdir(dirname)
     
     print("Extracting files:")
     for i in rar_files_name:
-      file_name = i
-      Archive(i).extractall(dirname)  
-      print(file_name)
-        
-    files_path = files_paderborn(dirname)
+      file_name = os.path.join(dirname, dir_rar, i)
+      Archive(file_name).extractall(dirname)  
+      print(i)
+
+    if self.debug==0:        
+      files_path = files_paderborn(dirname)
+    else:
+      files_path = files_debug(dirname)
 
     print(files_path)
     self.files = files_path
@@ -126,7 +182,7 @@ class Paderborn(database.Database): #database.Database # used in GitHub
         file_name = os.path.join(dirdest, conditions[key[5]], key+str(j)+'.csv')
         if not os.path.exists(file_name):
           np.savetxt(file_name, data[j], delimiter=',')
-          
+
 def files_paderborn(dirfiles):
   """
   Associate each file name to a bearing condition in a Python dictionary. 
@@ -222,11 +278,11 @@ def get_tensors_from_files(files_names, rawfilesdir=""):
   for key in files_names:
     if key != 'KA08_OR_2_2': # Dsiconsider this file (apparently corrupted)
       matlab_file = scipy.io.loadmat(files_names[key])
-      if len(files_names[key])>40:
-        vibration_data=matlab_file[files_names[key][18:37]]['Y'][0][0][0][6][2]
+      if len(files_names[key])>41:
+        vibration_data=matlab_file[files_names[key][19:38]]['Y'][0][0][0][6][2]
       else:
-        vibration_data=matlab_file[files_names[key][18:36]]['Y'][0][0][0][6][2]
-    print(key)
+        vibration_data=matlab_file[files_names[key][19:37]]['Y'][0][0][0][6][2]
+    #print(key)
     acquisitions[key] = vibration_data[0]
   return acquisitions
 
