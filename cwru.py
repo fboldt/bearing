@@ -5,11 +5,14 @@ Class definition for CWRU dataset.
 # Author: Lucio Venturim <lucioventurim@gmail.com> 
 # Francisco Boldt <fboldt@gmail.com>
 
-import urllib.request
 import os
-import database
-import scipy.io
+import urllib.request
+
 import numpy as np
+import scipy.io
+
+import database
+
 
 def files_debug():
   """
