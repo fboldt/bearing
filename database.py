@@ -12,7 +12,7 @@ class Database(ABC):
         pass
 
     @abstractmethod
-    def segmentate(self):
+    def segment(self):
         """
         Method responsible for transform the raw database files in somthing usable be the framework.
         """

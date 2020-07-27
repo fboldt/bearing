@@ -87,9 +87,9 @@ class CWRU(database.Database):
         urllib.request.urlretrieve(url+file_name, os.path.join(dirname, file_name))
       print("{}/{}\t{}\t{}".format(i+1, n, key, file_name))
   
-  def segmentate(self):
+  def segment(self):
     """
-    Segmentate Matlab files by the four main conditions, 
+    Segment Matlab files by the four main conditions, 
     i.e. Normal, Ball, Inner Race and Outer Race.
 
     It saves the segmented files in four directories,
@@ -321,7 +321,7 @@ def get_tensors_from_matlab(matlab_files_name, rawfilesdir=""):
 def main():
   database = CWRU()
   database.download()
-  database.segmentate()
+  database.segment()
 
 if __name__ == "__main__":
   main()

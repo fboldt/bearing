@@ -1,5 +1,5 @@
 .venv
 __pycache__
-database_raw
-database
 cwru_???
+*_raw
+*_seg
