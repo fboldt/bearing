@@ -14,6 +14,6 @@ class Database(ABC):
     @abstractmethod
     def segment(self):
         """
-        Method responsible for transform the raw database files in somthing usable be the framework.
+        Method responsible for transform the raw database files in something usable be the framework.
         """
         pass
