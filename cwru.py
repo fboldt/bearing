@@ -66,7 +66,12 @@ class CWRU(database.Database):
     self.rawfilesdir = "database_raw"
     self.dirdest = "database"
     self.url="http://csegroups.case.edu/sites/default/files/bearingdatacenter/files/Datafiles/"
-
+    self.sample_rate = 12000
+    self.conditions = {"r":"normal", 
+                       "B": "ball", 
+                       "I": "inner", 
+                       "O": "outer"}
+    
   def download(self):
     """
     Download Matlab files from CWRU website.
@@ -101,27 +106,48 @@ class CWRU(database.Database):
     dirdest = self.dirdest
     if not os.path.isdir(dirdest):
       os.mkdir(dirdest)
-    conditions = {"r":"normal", 
-                  "B": "ball", 
-                  "I": "inner", 
-                  "O": "outer"}
-    for key, condition in conditions.items():
+
+    for key, condition in self.conditions.items():
       if not os.path.isdir(os.path.join(dirdest, condition)):
         os.mkdir(os.path.join(dirdest, condition))
     matlab_files_name = self.files
-    acquisitions = get_tensors_from_matlab(matlab_files_name, self.rawfilesdir)
-    sample_size=512
-    data = np.empty((0,sample_size,1))
-    n = len(acquisitions)
-    for i,key in enumerate(acquisitions):
-      acquisition_size = len(acquisitions[key])
-      n_samples = acquisition_size//sample_size
+    self.acquisitions = get_tensors_from_matlab(matlab_files_name, self.rawfilesdir)
+    self.descr = dict.fromkeys(self.conditions.keys(),0)
+    self.sample_size=512
+    data = np.empty((0,self.sample_size,1))
+    n = len(self.acquisitions)
+    for i,key in enumerate(self.acquisitions):
+      acquisition_size = len(self.acquisitions[key])
+      n_samples = acquisition_size//self.sample_size
+      self.descr[key[2]] += n_samples
       print('{}/{} --- {}: {}'.format(i+1, n, key, n_samples))
-      data = acquisitions[key][:(n_samples*sample_size)].reshape((n_samples,sample_size,1))
+      data = self.acquisitions[key][:(n_samples*self.sample_size)].reshape((n_samples,self.sample_size,1))
       for j in range(n_samples):
-        file_name = os.path.join(dirdest, conditions[key[2]], key+str(j)+'.csv')
+        file_name = os.path.join(dirdest, self.conditions[key[2]], key+str(j)+'.csv')
+        #print(self.conditions[key[2]])
         if not os.path.exists(file_name):
           np.savetxt(file_name, data[j], delimiter=',')
+
+  def description(self):
+    """
+    Provides a brief description of the dataset.
+    """
+    
+    print("Number of Acquisitions: ", len(self.acquisitions))
+    print("Sampling Rate: ", self.sample_rate, "hz")
+    print("Sample Size: ", self.sample_size)
+    print()
+    
+    classes = self.descr
+    
+    print("Class -> Number of Samples:")
+    samples = 0
+       
+    for key in classes:
+      print(self.conditions[key], '->', classes[key])
+      samples = samples + classes[key]
+    print()
+    print("Total Number of Samples: ", samples)
 
 def files_12khz():
   """
@@ -322,6 +348,7 @@ def main():
   database = CWRU()
   database.download()
   database.segmentate()
+  database.description()
 
 if __name__ == "__main__":
   main()
