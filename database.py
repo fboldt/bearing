@@ -17,3 +17,10 @@ class Database(ABC):
         Method responsible for transform the raw database files in somthing usable be the framework.
         """
         pass
+
+    @abstractmethod
+    def description(self):
+        """
+        Method responsible for returning a description of the database classes and samples.
+        """
+        pass    
