@@ -191,21 +191,22 @@ class Paderborn(database.Database): #database.Database # used in GitHub
     Provides a brief description of the dataset.
     """
     
-    print("Number of Acquisitions: ", len(self.acquisitions))
-    print("Sampling Rate: ", self.sample_rate, "hz")
-    print("Sample Size: ", self.sample_size)
-    print()
+    description_dict = {}
+    description_dict['n_acquisitions'] = len(self.acquisitions)
+    description_dict['sample_rate'] = self.sample_rate
+    description_dict['sample_size'] = self.sample_size
     
     classes = self.descr
-    
-    print("Class -> Number of Samples:")
+      
     samples = 0
        
     for key in classes:
-      print(self.conditions[key], '->', classes[key])
+      description_dict['class_'+self.conditions[key]] = classes[key]
       samples = samples + classes[key]
-    print()
-    print("Total Number of Samples: ", samples)
+
+    description_dict['class_total_samples'] = samples
+
+    return description_dict
 
 def files_paderborn(dirfiles):
   """
