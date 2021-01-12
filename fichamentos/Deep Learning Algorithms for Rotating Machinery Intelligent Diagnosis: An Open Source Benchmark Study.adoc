@@ -1,0 +1,26 @@
+= Deep Learning Algorithms for Rotating Machinery Intelligent Diagnosis: An Open Source Benchmark Study
+
+O artigo disponibiliza um estudo da aplicação dos principais métodos de "deep learning" sobre diferentes bases de dados públicas, a fim de facilitar as comparações uma vez que não há um padrão seguido nos demais trabalhos publicados. Para tal, ele disponibiliza os códigos elaborados, o que permite que outros pesquisadores realizem comparações mais assertivas e permitindo uma melhor reprodutibilidade. São avaliadas nove bases de dados, porém apenas 7 delas são apropriadas para tarefas de classificação. Para essas são aplicadas diferentes formas de preparação (de entradas, normalização, "augmentation"), assim como diferentes formas de separação dos dados, o que é o foco em nosso caso. Alguns dos principais métodos de "deep learning" são avaliados com essas 7 bases, MFPT e Paderborn incluídas, listando os resultados em tabelas. Esses resultados também disponibilizam um "benchmark" dos desempenhos, ajudando na definição de limites inferiores para o desenvolvimento de novos métodos.
+
+Assim, como objetivos do artigo entendo que um deles seja disponibilizar esse "benchmark" de resultados, que foi realizado com os experimentos nas bases de dados com diferentes métodos de "deep learning", e outro seria o de oferecer os códigos de um framework para que outros pesquisadores testem a performance de seus modelos.
+
+O grande diferencial deste artigo acredito que seja a disponibilização dos códigos. A maioria dos artigos que li fica complicado verificar como foram realizados os experimentos sem ter o acesso ao código, pois não são informados diversos parâmetros, impedindo a reprodução dos mesmos. 
+
+Após avaliar o código, alguns detalhes me chamaram a atenção:
+
+- Modularidade: acredito que o autor não se preocupou muito em modularizar. Por exemplo, a função de leitura da base é repetida para cada forma de separação de dados e também para cada forma de entrada dos dados (domínio do tempo, da frequência, etc.).
+- Foi utilizado o Pytorch, que eu não conhecia e vi que é similar ao Tensorflow (parecem ser concorrentes, um usado pelo Google e outro pelo Facebook).
+- Para o caso específico do MFPT, ele não utilizou todos os dados da base, apenas os dados normais e aqueles com a mesma amostragem (48.828 amostras por segundo). Além disso, ele considerou um rótulo para cada condição E carga. Assim, ficou o mesmo número de rótulos e de aquisições (à exceção das condições normais). Ou seja, da forma como ele fez o experimento, não seria possível verificar o viés de similaridade para as mesmas aquisições, já que teríamos apenas uma aquisição para cada rótulo. Alterei o código para considerar apenas três condições (normal, OR e IR) o que demonstrou o viés para o caso que alterei. A questão é que como o código não é modularizado como falei, seria necessário alterar diversos códigos para os demais experimentos.
+- Para o Paderborn, ele não utilizou a base inteira, pois ela é muito extensa, e a limitação feita também não permite verificar o viés pela aquisição, sendo necessário alterar o código.
+
+A principal dúvida que fiquei foi com relação a como os resultados dos experimentos foram considerados. Pelo código me pareceu que ele realiza apenas o treinamento e validação, e pega o resultado da última época como o resultado da acurácia "real". Essa parte gostaria de conversar com você sobre para entender melhor (abaixo).
+
+"Since the performance of DL-based intelligent diagnosis algorithms fluctuates during the training process, to obtain
+reliable results and show the best overall accuracy that the model can achieve, we repeat each experiment five times. Four
+indicators are used to assess the performance of models, including the mean and maximum values of the overall accuracy
+obtained by the last epoch (the accuracy in the last epoch can represent the real accuracy without any test leakage), and the
+mean and maximum values of the maximal overall accuracy. For simplicity, they can be denoted as Last-Mean, Last-Max,
+Best-Mean, and Best-Max."
+
+
+Concluindo, acredito que podemos elaborar um artigo que combine a definição de um padrão para experimentos, mas combinando com a ideia de demonstrar o viés de similaridade com a aplicação dos experimentos para as diferentes formas de separação. Com a leitura dos artigos vi que podemos listar algumas principais para utilizar, e aplicando os métodos de "deep learning" como nesse artigo.
