@@ -1,4 +1,4 @@
-= 2020 - Deep Learning Algorithms for Rotating Machinery Intelligent Diagnosis: An Open Source Benchmark Study
+= Deep Learning Algorithms for Rotating Machinery Intelligent Diagnosis: An Open Source Benchmark Study
 
 +++<ins>+++
 Colocar:
