@@ -1,8 +1,23 @@
 = Metodologia para mitigar o viés de similaridade nas bases de dados de MFPT e Paderborn
 
+**
+Todo o texto precisa ser reformulado. 
+Está muito difícil de entender.
+O assunto precisa ser contextualizado.
+Exemplo: 
+ . Fale de diagnóstico automático em processos industriais e rolamentos;
+ . Ligue isso com os trabalhos que usam aprendizado de máquina, mostrando a importância deles;
+ . Depois explique detalhadamente por que é importante uma avaliação realista e por que é ruim uma avaliação otimista;
+ . Mostre que o problema do artigo de referência se repete para as duas outras bases;
+ . Proponha mostrar com experimentos que este problema existe;
+ . Proponha uma forma de mitigar o problema das duas outras bases, e se não for possível, explicar o motivo.
+ 
+Observe como citar bibliografia.
+**
+
 A capacidade de generalização de algoritmos de diagnóstico de falhas em rolamentos representa o desempenho de um modelo elaborado quando é utilizado em diferentes condições de funcionamento de determinado equipamento. Assim, um modelo desenvolvido com dados de uma condição tende a ter uma performance significativamente inferior quando aplicado em outras condições, o que na prática é o cenário mais provável. Logo, os resultados obtidos durante a elaboração do modelo com uma ou poucas condições de trabalho do equipamento podem ser otimistas e com resultados insatisfatórios quando aplicados na realidade.
 
-Além da não utilização de diferentes condições na elaboração do modelo para diagnóstico de falhas, outra característica que influencia na capacidade de generalização de um algoritmo, de acordo com (1), é o viés de similaridade. O viés de similaridade ocorre quando os dados de uma mesma condição que são utilizados para o treinamento e teste do modelo têm características muito similares, tornando a tarefa de classificação relativamente trivial. Amostras de uma mesma condição e de uma mesma aquisição, por exemplo, tipicamente são muito similares (1). Em (1), são realizados experimentos com a base CWRU com diferentes formas de separação dos dados a fim de verificar a questão do viés de similaridade, indicando também que uma extensa lista de trabalhos publicados não considera esse viés no desenvolvimento de seus modelos.
+Além da não utilização de diferentes condições na elaboração do modelo para diagnóstico de falhas, outra característica que influencia na capacidade de generalização de um algoritmo, de acordo com (1) <<hodson2014ry>> +++<ins>Quem é (1)?</ins>+++, é o viés de similaridade. O viés de similaridade ocorre quando os dados de uma mesma condição que são utilizados para o treinamento e teste do modelo têm características muito similares, tornando a tarefa de classificação relativamente trivial. Amostras de uma mesma condição e de uma mesma aquisição, por exemplo, tipicamente são muito similares (1). Em (1), são realizados experimentos com a base CWRU com diferentes formas de separação dos dados a fim de verificar a questão do viés de similaridade, indicando também que uma extensa lista de trabalhos publicados não considera esse viés no desenvolvimento de seus modelos.
 
 Os trabalhos publicados para as bases de dados MFPT e Paderborn também não consideram a questão do viés de similaridade na elaboração dos algoritmos de classificação de falhas (elaborar tabela com principais trabalhos de cada base e suas formas de separação de dados).
 
@@ -13,3 +28,8 @@ Dentre os artigos que utilizam a base MFPT, em (5), que propõe uma __lightweigh
 Para os artigos onde a base Paderborn é utilizada, alguns utilizam dados de mesma aquisição tanto para o treinamento como para o teste como já citado em (10), entre eles em (15), que propõe uma __deep residual network__ (ResNet) baseada em __input feature mappings__ (IFMs). Outros artigos realizam experimentos onde não são utilizados dados de mesma aquisição para treino e teste simultaneamente, como em (13), que propõe uma __deep inception net__ com __atrous convolution__ (ACDIN) para tratar do problema de utilizar dados de danos artificiais com mais confiabilidade, e em (14), que propõe uma nova __capsule network__. Para esses casos, a separação não considerando a aquisição não foi com o objetivo explícito de evitar algum viés. Porém, para o Paderborn, o viés de similaridade pode ocorrer não somente pela utilização de mesma aquisição, mas também de outras formas, como dados de mesmo rolamento com mesma carga, ou até de mesmo rolamento, a ser confirmado com experimentos.
 
 Uma forma de mitigar o viés de similaridade e aumentar a capacidade de generalização de um modelo de classificação de falhas em rolamentos com a não utilização de amostras de mesma condição e aquisição no treinamento e teste é a definição de grupos diferentes para cada aquisição e/ou outras características e que tais grupos sejam mantidos sempre para treinamento ou para testes.
+
+[bibliography]
+== Bibliografia
+. [[hodson2014ry]] Ryan Hodson. _Ry's Git Tutorial_. RyPress. 2014.
+. [[chacon2014pro]] Scott Chacon & Ben Straub. _Pro Git_. Spring Nature. 2014.
