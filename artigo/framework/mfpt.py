@@ -49,8 +49,6 @@ class MFPT(Database_Download):
     self.rawfilesdir = "mfpt_raw"
     self.dirdest = "mfpt_seg"
     self.url="https://mfpt.org/wp-content/uploads/2020/02/MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
-    #self.sample_rate = 97656
-    #self.sample_size = 8192
     self.conditions = {"N":"normal", 
               "I": "inner", 
               "O": "outer"}
@@ -106,7 +104,7 @@ class MFPT(Database_Download):
     
     zip_name = "MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
 
-    print("Donwloading ZIP file")
+    print("Downloading ZIP file")
     
     urllib.request.urlretrieve(url, os.path.join(dirname, zip_name))
 
@@ -145,8 +143,6 @@ class MFPT(Database_Download):
       acquisitions_dict[key] = vibration_data
 
     acquisitions_data = {}
-    #acquisitions_data['sample_rate'] = self.sample_rate
-    #acquisitions_data['sample_size'] = self.sample_size
     acquisitions_data['conditions'] = self.conditions
     acquisitions_data['dirdest'] = self.dirdest
     acquisitions_data['acquisitions'] = acquisitions_dict
