@@ -1,4 +1,4 @@
 autopep8==1.5.2
-numpy==1.18.4
-pycodestyle==2.6.0
-scipy==1.4.1
+pip-chill==1.0.1
+pyunpack==0.2.2
+scikit-learn==0.24.1
