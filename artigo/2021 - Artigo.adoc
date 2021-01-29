@@ -1,62 +1,48 @@
 = Metodologia para mitigar o viés de similaridade nas bases de dados de MFPT e Paderborn
 
-**
-Todo o texto precisa ser reformulado. 
-Está muito difícil de entender.
-O assunto precisa ser contextualizado.
-Exemplo: 
- . Fale de diagnóstico automático em processos industriais e rolamentos;
- . Ligue isso com os trabalhos que usam aprendizado de máquina, mostrando a importância deles;
- . Depois explique detalhadamente por que é importante uma avaliação realista e por que é ruim uma avaliação otimista;
- . Mostre que o problema do artigo de referência se repete para as duas outras bases;
- . Proponha mostrar com experimentos que este problema existe;
- . Proponha uma forma de mitigar o problema das duas outras bases, e se não for possível, explicar o motivo.
- 
-Observe como citar bibliografia.
-**
-
-[NOTE]
-----
-No geral, as frases estão muito longas.
-Você precisa dividi-las em frases menores.
-----
-
 == Introdução
 
-Os processos industriais são constantemente monitorados para o fornecimento de produtos de melhor qualidade e com menores taxas de rejeição. Porém, durante a produção podem ocorrer falhas durante os processos, que são definidas como um desvio não permitido de ao menos uma variável ou propriedade característica do sistema <<isermann1997>>. Os rolamentos são indispensáveis para máquinas com partes rotativas e o monitoramento de falhas nesses componentes é importante, uma vez que 40 a 50% das falhas de equipamentos que
-+++<del>possuem rolamentos são causadas por falhas nos mesmos</del>
-<ins>os possuem são causadas por falhas neles<ins>+++
-<<nandi2005>>. 
+Os processos industriais são constantemente monitorados para o fornecimento de produtos de melhor qualidade e com menores taxas de rejeição.
+Porém, durante a produção podem ocorrer falhas durante os processos, que são definidas como um desvio não permitido de ao menos uma variável ou propriedade característica do sistema <<isermann1997>>.
+Os rolamentos são indispensáveis para máquinas com partes rotativas e o monitoramento de falhas nesses componentes é importante, uma vez que 40 a 50% das falhas de equipamentos que os possuem são causadas por falhas neles <<nandi2005>>.
 
-O monitoramento de processos industriais pode ser dividido em quatro etapas: detecção de falhas, identificação de falhas, diagnóstico de falhas e processo de recuperação <<chiang2001>>. Dentre essas etapas, o diagnóstico de falhas pode ser aplicado através de sistemas baseados em _softwares_, que são considerados ferramentas essenciais para garantir a segurança e manutenção de processos dinâmicos <<chiang2001>>. Esses sistemas podem utilizar técnicas de aprendizado de máquina, que usam os sinais coletados de determinado equipamento para treinar e testar classificadores, 
-+++<del>para a identificação e diagnóstico de falhas</del>
-<ins> e então identificar e diagnosticar as falhas</ins>+++
-<<rauber2020>>.
+O monitoramento de processos industriais pode ser dividido em quatro etapas: detecção de falhas, identificação de falhas, diagnóstico de falhas e processo de recuperação <<chiang2001>>.
+Dentre essas etapas, o diagnóstico de falhas pode ser aplicado através de sistemas baseados em _softwares_, que são considerados ferramentas essenciais para garantir a segurança e manutenção de processos dinâmicos <<chiang2001>>.
+Esses sistemas podem utilizar técnicas de aprendizado de máquina, que usam os sinais coletados de determinado equipamento para treinar e testar classificadores, e então identificar e diagnosticar as falhas <<rauber2020>>.
 
-[WARNING]
-----
-Evitar "substantivar" verbos a todo custo. 
-Ex.: Identificar pode ser indentificando, mas não identificação.
-Em asciidoc, assim como em latex, escreva uma frase por linha.
-Você está escrevendo um paŕagrafo por linha.
-----
+O desenvolvimento de modelos para classificação de falhas em rolamento depende da utilização de bases de dados com sinais coletados durante o funcionamento de um equipamento, que são separados em parte para treinamento e validação e parte para testes, de onde são extraídos os resultados dos experimentos.
+Porém, dependendo das escolhas durante a elaboração do modelo, os experimentos podem trazer uma avaliação super otimista, onde os resultados foram adequados apenas para a configuração utilizada.
+Desta forma, quando a técnica testada for aplicada na prática, possivelmente não trará resultados similares aos obtidos durante o desenvolvimento.
+Uma avaliação realista deve levar em consideração a capacidade de generalização do modelo elaborado.
+Assim o classificador treinado deve ser capaz de reconhecer o máximo de condições possíveis, mesmo quando há variações em suas condições de trabalho <<rauber2020>>.
 
-O desenvolvimento de modelos para classificação de falhas em rolamento depende da utilização de bases de dados com sinais coletados durante o funcionamento de um equipamento, que são separados em parte para treinamento e validação e parte para testes, de onde são extraídos os resultados dos experimentos. Porém, dependendo das escolhas durante a elaboração do modelo, os experimentos podem trazer uma avaliação 
-+++<ins>super</ins>+++ 
-otimista, onde os resultados foram adequados apenas para a configuração utilizada+++<del>, o que quando</del><ins>. Desta forma, quando a técnica testada for</ins>+++
-aplicada na prática+++<ins>,</ins>+++ possivelmente não trará resultados similares aos obtidos durante o desenvolvimento. Uma avaliação realista deve levar em consideração a capacidade de generalização do modelo elaborado, o que significa que o classificador+++<del>o</del>+++ treinado deve ser capaz de reconhecer o máximo de condições possíveis+++<ins>,</ins>+++ mesmo quando há variações em suas condições de trabalho <<rauber2020>>.
+Uma característica que influencia na capacidade de generalização de um algoritmo, de acordo com <<rauber2020>>, é o viés de similaridade.
+O viés de similaridade ocorre quando os dados de uma mesma condição que são utilizados para o treinamento e teste do modelo têm características muito similares, tornando a tarefa de classificação relativamente trivial.
+Amostras de uma mesma condição e de uma mesma aquisição, por exemplo, tipicamente são muito similares <<rauber2020>>.
+Em <<rauber2020>>, são realizados experimentos com a base de dados fornecida pela _Case Western Reserve University_ (CWRU) com diferentes formas de separação dos dados a fim de verificar a questão do viés de similaridade.
+O artigo apresenta uma extensa lista de trabalhos publicados não considera esse viés no desenvolvimento de seus modelos.
 
-Uma característica que influencia na capacidade de generalização de um algoritmo, de acordo com <<rauber2020>>, é o viés de similaridade. O viés de similaridade ocorre quando os dados de uma mesma condição que são utilizados para o treinamento e teste do modelo têm características muito similares, tornando a tarefa de classificação relativamente trivial. Amostras de uma mesma condição e de uma mesma aquisição, por exemplo, tipicamente são muito similares <<rauber2020>>. Em <<rauber2020>>, são realizados experimentos com a base de dados fornecida pela _Case Western Reserve University_ (CWRU) com diferentes formas de separação dos dados a fim de verificar a questão do viés de similaridade, indicando também que uma extensa lista de trabalhos publicados não considera esse viés no desenvolvimento de seus modelos.
+As bases de dados disponibilizadas pela _Machinery Failure Prevention Technology Society_ (MFPT) e pela _Konstruktions und Antriebstechnik_ da Universidade de Paderborn (PADERBORN) são utilizadas para o desenvolvimento de modelos de classificação de falhas em diversos artigos.
+A tabela XXX apresenta trabalhos publicados com detalhes sobre a forma de separação dos dados para o treinamento e testes dos modelos.
+A questão do viés de similaridade não é considerada na elaboração dos algoritmos de classificação de falhas dos artigos listados.
 
-Os trabalhos publicados para as bases de dados disponibilizadas pela _Machinery Failure Prevention Technology Society_ (MFPT) e pela _Konstruktions und Antriebstechnik_ da Universidade de Paderborn (PADERBORN) também não consideram a questão do viés de similaridade na elaboração dos algoritmos de classificação de falhas (elaborar tabela com principais trabalhos de cada base e suas formas de separação de dados). +++<tt>Este é um parágrafo pequeno de apenas uma frase grande.</tt>+++
+Em <<zhao2020>>, que realiza um estudo com a aplicação de métodos de aprendizado profundo em 9 bases de dados de falhas de rolamentos, incluindo a base MFPT e a Paderborn, são descritas duas formas de separação dos dados em treinamento e testes
+Uma é a separação randômica dos dados, onde as amostras são escolhidas aleatoriamente para treino e teste.
+Outra é a separação pelo tempo, onde um percentual ou duração pré-definida do sinal é escolhido para treino e teste.
+Em ambos os casos, são utilizadas amostras da mesma aquisição para treino e teste, e o viés de similaridade pode ocorrer.
 
-Em <<zhao2020>>, que realiza um estudo com a aplicação de métodos de aprendizado profundo em 9 bases de dados de falhas de rolamentos, incluindo a base MFPT e a Paderborn, são descritas duas formas de separação dos dados em treinamento e testes: separação randômica dos dados, onde as amostras são escolhidas aleatoriamente para treino e teste; separação pelo tempo, onde um percentual ou duração pré-definida do sinal é escolhido para treino e teste. Em ambos os casos, ainda são utilizadas amostras da mesma condição e aquisição para treino e teste. +++<tt>CUIDADO aqui! Amostras da mesma condição PRECISAM estar presentes no treino e no teste. O problema do víes de similaridade pode estar na forma de como as condições foram escolhidas, de acordo com as aquisições. Por favor, reformule a frase!</tt>+++
+Dentre os artigos que utilizam a base MFPT, em <<wang2020>>, que propõe uma __lightweight convolutional neural network__ (LCNN), é realizada a separação dos dados aleatoriamente com 70% para treinamento, 10% para validação e 20% para teste, também utilizando amostras de mesma aquisição em todos.
+<<verstraete2017>> propõe uma metologia baseada em __deep learning__ para aprendizado automático de características dos dados, onde a separação dos dados também foi realizada aleatoriamente com 70% para treinamento e 30% para teste, com amostras de mesma aquisição em ambos.
+Muitos trabalhos não informam a forma de separação de dados, como em <<wen2019>>, que propõe uma nova __snapshot ensemble convolutional neural network__ (SECNN), e em <<lee2016>>, que avalia o uso de __convolutional neural nets__ (CNN) diretamente nos sinais.
 
-Dentre os artigos que utilizam a base MFPT, em <<wang2020>>, que propõe uma __lightweight convolutional neural network__ (LCNN), é realizada a separação dos dados aleatoriamente com 70% para treinamento, 10% para validação e 20% para teste, também utilizando amostras de mesma aquisição em todos. Em <<verstraete2017>>, que propõe uma metologia baseada em __deep learning__ par+++<ins>a</ins>+++ aprendizado automático de características dos dados+++<del>, a</del><ins>. A</ins>+++ separação de também foi realizada aleatoriamente com 70% para treinamento e 30% para teste, com amostras de mesma aquisição em ambos. Muitos trabalhos não informam a forma de separação de dados, como em <<wen2019>>, que propõe uma nova __snapshot ensemble convolutional neural network__ (SECNN), e em <<lee2016>>, que avalia o uso de __convolutional neural nets__ (CNN) diretamente nos sinais.
+Para os artigos onde a base Paderborn é utilizada, alguns utilizam dados de mesma aquisição tanto para o treinamento como para o teste como já citado em <<zhao2020>>.
+Entre eles <<hou2020>>, que propõe uma __deep residual network__ (ResNet) baseada em __input feature mappings__ (IFMs).
+Outros artigos realizam experimentos onde não são utilizados dados de mesma aquisição para treino e teste simultaneamente, como em <<chen2018>>, que propõe uma __deep inception net__ com __atrous convolution__ (ACDIN) para tratar do problema de utilizar dados de danos artificiais com mais confiabilidade, e em <<zhu2018>>, que propõe uma nova __capsule network__.
+Para esses casos, a separação não considerando a aquisição não foi com o objetivo explícito de evitar algum viés de similaridade.
+Porém, para a base PADERBORN, o viés de similaridade pode ocorrer não somente pela utilização de mesma aquisição, mas também de outras formas, como dados de mesmo rolamento com mesma carga, ou até de mesmo rolamento, a ser confirmado com experimentos.
 
-Para os artigos onde a base Paderborn é utilizada, alguns utilizam dados de mesma aquisição tanto para o treinamento como para o teste como já citado em <<zhao2020>>, entre eles em <<hou2020>>, que propõe uma __deep residual network__ (ResNet) baseada em __input feature mappings__ (IFMs). Outros artigos realizam experimentos onde não são utilizados dados de mesma aquisição para treino e teste simultaneamente, como em <<chen2018>>, que propõe uma __deep inception net__ com __atrous convolution__ (ACDIN) para tratar do problema de utilizar dados de danos artificiais com mais confiabilidade, e em <<zhu2018>>, que propõe uma nova __capsule network__. Para esses casos, a separação não considerando a aquisição não foi com o objetivo explícito de evitar algum viés. Porém, para o Paderborn, o viés de similaridade pode ocorrer não somente pela utilização de mesma aquisição, mas também de outras formas, como dados de mesmo rolamento com mesma carga, ou até de mesmo rolamento, a ser confirmado com experimentos.
-
-Uma forma de mitigar o viés de similaridade e aumentar a capacidade de generalização de um modelo de classificação de falhas em rolamentos com a não utilização de amostras de mesma condição e aquisição no treinamento e teste é a definição de grupos diferentes para cada aquisição e/ou outras características e que tais grupos sejam mantidos sempre para treinamento ou para testes.
+Uma forma de mitigar o viés de similaridade, e aumentar a capacidade de generalização de um modelo de classificação de falhas em rolamentos, é a não utilização de amostras de mesma condição e aquisição no treinamento e teste.
+Para isso, deve-se definir grupos diferentes para cada aquisição e/ou outras características, para que os dados de tais grupos sejam utilizados somente para treinamento ou para testes.
 
 [bibliography]
 == Bibliografia
