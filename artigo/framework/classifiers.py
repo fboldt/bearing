@@ -93,7 +93,7 @@ def Classifiers():
     from sklearn.neighbors import KNeighborsClassifier
 
     knn = Pipeline([
-                    #('FeatureExtraction', StatisticalTime()),
+                    ('FeatureExtraction', StatisticalTime()),
                     ('scaler', StandardScaler()),
                     ('knn', KNeighborsClassifier()),
                     ])
@@ -106,13 +106,14 @@ def Classifiers():
     from sklearn.svm import SVC
 
     svm = Pipeline([
+                    ('FeatureExtraction', StatisticalTime()),
                     ('scaler', StandardScaler()),
                     ('svc', SVC()),
                     ])
 
     parameters_svm = {
-        'svc__C': [10**x for x in range(-3,2)],
-        'svc__gamma': [10**x for x in range(-3,1)],
+        'svc__C': [10**x for x in range(-1,2)],
+        'svc__gamma': [10**x for x in range(-2,1)],
         }
 
     svm = GridSearchCV(svm, parameters_svm)
@@ -121,6 +122,7 @@ def Classifiers():
     from sklearn.neural_network import MLPClassifier
 
     mlp = Pipeline([
+                    ('FeatureExtraction', StatisticalTime()),
                     ('scaler', StandardScaler()),
                     ('mlp', MLPClassifier()),
                     ])
@@ -154,7 +156,7 @@ def Classifiers():
 
     # Chosen Classifiers
 
-    clfs = [('K-Nearest Neighbors', knn)]#, ('Random Forest', rf)]#, ('MLP', mlp), ('SVM', svm)]
+    clfs = [('K-Nearest Neighbors', knn), ('Random Forest', rf), ('MLP', mlp), ('SVM', svm)]
 
     return clfs
 

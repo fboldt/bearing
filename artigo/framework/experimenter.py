@@ -1,5 +1,6 @@
 from sklearn.model_selection import cross_validate, KFold, GroupKFold, GroupShuffleSplit
 from sklearn.metrics import accuracy_score, f1_score
+from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 import numpy as np
 from database import Database_Experimenter
@@ -74,20 +75,24 @@ class Experimenter(Database_Experimenter):
 
       print("---Kfold---")
       estimator_kfold = estimator
+
+      #scores = cross_val_score(estimator_kfold, self.signal_dt, np.array(self.signal_or), cv=2)
+
+      #print("test_accuracy: ", scores, " Mean:", format(scores.mean(), '.2f'), "Std:", format(scores.std(), '.2f'))
+
+
       score = cross_validate(estimator_kfold, self.signal_dt, np.array(self.signal_or),
-                            scoring=scoring, cv=KFold(n_splits=2), verbose=verbose, error_score='raise')
+                            scoring=scoring, cv=4, verbose=verbose)#, error_score='raise')
       for metric,s in score.items():
         print(metric, ' \t', s, ' Mean: ', format(s.mean(), '.2f'), ' Std: ', format(s.std(), '.2f'))
-
 
       print("---GroupKfold---")
       estimator_groupkfold = estimator
       score = cross_validate(estimator_groupkfold, self.signal_dt, np.array(self.signal_or),
-                            self.signal_gr, scoring, cv=GroupKFold(n_splits=2), verbose=verbose)
+                             self.signal_gr, scoring, cv=GroupKFold(n_splits=4), verbose=verbose)
 
-      for metric,s in score.items():
+      for metric, s in score.items():
         print(metric, ' \t', s, ' Mean: ', format(s.mean(), '.2f'), ' Std: ', format(s.std(), '.2f'))
-
 
       print("---Train Test Split---")
       estimator_ttsplit = estimator
