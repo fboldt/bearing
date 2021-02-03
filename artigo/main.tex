@@ -1,5 +1,119 @@
-\documentclass{article}
+%File: formatting-instruction.tex
+\documentclass[letterpaper]{article}
+\usepackage{aaai}
+\usepackage{graphicx}
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{comment}
+\usepackage{courier}
+\usepackage{float}
+\usepackage{listings} % Inserido para os códigos
+\frenchspacing
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\pdfinfo{
+/Title (Metodologia para mitigar o viés de similaridade nas bases de dados de MFPT e Paderborn)
+/Author (Lucio Venturim)}
+\setcounter{secnumdepth}{3}  
+\usepackage[brazilian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+ \begin{document}
+% The file aaai.sty is the style file for AAAI Press 
+% proceedings, working notes, and technical reports.
+%
+\title{Metodologia para mitigar o viés de similaridade nas bases de dados de MFPT e Paderborn}
+\author{Lúcio Antônio Stange Venturim\\
+Instituto Federal do Espírito Santo\\
+Campus Serra\\
+}
+\maketitle
+\begin{abstract}
+\begin{quote}
+Este artigo propõe uma metodologia para mitigar o viés de similaridade das bases Paderborn e MFPT de acordo com a separação dos dados para treinamento, validação e teste.
+\end{quote}
+\end{abstract}
 
-\begin{document}
-Hello, World!
+\section{Introdução}
+
+Os processos industriais são constantemente monitorados para o fornecimento de produtos de melhor qualidade e com menores taxas de rejeição. Porém, durante a produção podem ocorrer falhas durante os processos, que são definidas como um desvio não permitido de ao menos uma variável ou propriedade característica do sistema \cite{isermann1997trends}. Os rolamentos são indispensáveis para máquinas com partes rotativas e o monitoramento de falhas nesses componentes é importante, uma vez que 40 a 50\% das falhas de equipamentos que os possuem são causadas por falhas neles \cite{nandi2005condition}.
+
+O monitoramento de processos industriais pode ser dividido em quatro etapas: detecção de falhas, identificação de falhas, diagnóstico de falhas e processo de recuperação \cite{chiang2000fault}. Dentre essas etapas, o diagnóstico de falhas pode ser aplicado através de sistemas baseados em softwares, que são considerados ferramentas essenciais para garantir a segurança e manutenção de processos dinâmicos \cite{chiang2000fault}. Esses sistemas podem utilizar técnicas de aprendizado de máquina, que usam os sinais coletados de determinado equipamento para treinar e testar classificadores, e então identificar e diagnosticar as falhas \cite{rauber2020experimental}.
+
+O desenvolvimento de modelos para classificação de falhas em rolamento depende da utilização de bases de dados com sinais coletados durante o funcionamento de um equipamento, que são separados em parte para treinamento e validação e parte para testes, de onde são extraídos os resultados dos experimentos. Porém, dependendo das escolhas durante a elaboração do modelo, os experimentos podem trazer uma avaliação super otimista, onde os resultados foram adequados apenas para a configuração utilizada. Desta forma, quando a técnica testada for aplicada na prática, possivelmente não trará resultados similares aos obtidos durante o desenvolvimento. Uma avaliação realista deve levar em consideração a capacidade de generalização do modelo elaborado. Assim o classificador treinado deve ser capaz de reconhecer o máximo de condições possíveis, mesmo quando há variações em suas condições de trabalho \cite{rauber2020experimental}.
+
+Uma característica que influencia na capacidade de generalização de um algoritmo, de acordo com \cite{rauber2020experimental}, é o viés de similaridade. O viés de similaridade ocorre quando os dados de uma mesma condição que são utilizados para o treinamento e teste do modelo têm características muito similares, tornando a tarefa de classificação relativamente trivial. Amostras de uma mesma condição e de uma mesma aquisição, por exemplo, tipicamente são muito similares \cite{rauber2020experimental}. Em \cite{rauber2020experimental}, são realizados experimentos com a base de dados fornecida pela Case Western Reserve University (CWRU) com diferentes formas de separação dos dados a fim de verificar a questão do viés de similaridade. O artigo apresenta uma extensa lista de trabalhos publicados não considera esse viés no desenvolvimento de seus modelos.
+
+As bases de dados disponibilizadas pela Machinery Failure Prevention Technology Society (MFPT) e pela Konstruktions und Antriebstechnik da Universidade de Paderborn (PADERBORN) são utilizadas para o desenvolvimento de modelos de classificação de falhas em diversos artigos. A tabela XXX apresenta trabalhos publicados com detalhes sobre a forma de separação dos dados para o treinamento e testes dos modelos. A questão do viés de similaridade não é considerada na elaboração dos algoritmos de classificação de falhas dos artigos listados.
+
+Em \cite{zhao2020deep}, que realiza um estudo com a aplicação de métodos de aprendizado profundo em 9 bases de dados de falhas de rolamentos, incluindo a base MFPT e a Paderborn, são descritas duas formas de separação dos dados em treinamento e testes Uma é a separação randômica dos dados, onde as amostras são escolhidas aleatoriamente para treino e teste. Outra é a separação pelo tempo, onde um percentual ou duração pré-definida do sinal é escolhido para treino e teste. Em ambos os casos, são utilizadas amostras da mesma aquisição para treino e teste, e o viés de similaridade pode ocorrer.
+
+Dentre os artigos que utilizam a base MFPT, em \cite{wang2020bearing}, que propõe uma lightweight convolutional neural network (LCNN), é realizada a separação dos dados aleatoriamente com 70\% para treinamento, 10\% para validação e 20\% para teste, também utilizando amostras de mesma aquisição em todos. \cite{verstraete2017deep} propõe uma metologia baseada em deep learning para aprendizado automático de características dos dados, onde a separação dos dados também foi realizada aleatoriamente com 70\% para treinamento e 30\% para teste, com amostras de mesma aquisição em ambos. Muitos trabalhos não informam a forma de separação de dados, como em \cite{wen2019new}, que propõe uma nova snapshot ensemble convolutional neural network (SECNN), e em \cite{lee2016convolutional}, que avalia o uso de convolutional neural nets (CNN) diretamente nos sinais.
+
+Para os artigos onde a base Paderborn é utilizada, alguns utilizam dados de mesma aquisição tanto para o treinamento como para o teste como já citado em \cite{zhao2020deep}. Entre eles \cite{hou2020input}, que propõe uma deep residual network (ResNet) baseada em input feature mappings (IFMs). Outros artigos realizam experimentos onde não são utilizados dados de mesma aquisição para treino e teste simultaneamente, como em \cite{chen2018acdin}, que propõe uma deep inception net com atrous convolution (ACDIN) para tratar do problema de utilizar dados de danos artificiais com mais confiabilidade, e em \cite{zhu2019convolutional}, que propõe uma nova capsule network. Para esses casos, a separação não considerando a aquisição não foi com o objetivo explícito de evitar algum viés de similaridade. Porém, para a base PADERBORN, o viés de similaridade pode ocorrer não somente pela utilização de mesma aquisição, mas também de outras formas, como dados de mesmo rolamento com mesma carga, ou até de mesmo rolamento, a ser confirmado com experimentos.
+
+Uma forma de mitigar o viés de similaridade, e aumentar a capacidade de generalização de um modelo de classificação de falhas em rolamentos, é a não utilização de amostras de mesma condição e aquisição no treinamento e teste. Para isso, deve-se definir grupos diferentes para cada aquisição e/ou outras características, para que os dados de tais grupos sejam utilizados somente para treinamento ou para testes.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=40mm]{imagens/rolamento.PNG}
+    \caption{Principais Elementos de um Rolamento.}
+    \label{fig:rolamento}
+\end{figure}
+
+A seção 2 apresenta as bases de dados a serem analisadas. A seção 3 descreve a metodologia utilizada para a análise do viés de similaridade das bases MFPT e Paderborn. A seção 4 apresenta e a seção 6 traz uma análise dos resultados obtidos. Por fim a seção 7 traz a conclusão do artigo e discute possibilidades para trabalhos futuros.
+
+\section{Bases de Dados}
+
+Para que a análise do viés de similaridade seja possível, é necessário que as bases de dados escolhidas possuam diferentes seções de aquisição para as diferentes condições presentes. Para esse artigo foram utilizadas as bases MFPT e PADERBORN, que possuem essa característica.
+
+\subsection{MFPT}
+
+A base de dados referida como MFPT foi disponibilizada publicamente pela \textit{Machine Failure Prevention Technology Society} (MFPT). Ela foi desenvolvida em conjunto com o trabalho \cite{bechhoefer2016quick}, que analisa o algoritmo de envelopamento e descreve técnicas para seu desenvolvimento, além de prover métodos para a determinação de uma janela otimizada para a análise dos envelopes.
+
+A aquisição dos dados de vibração foi realizada com um aparato utilizando rolamentos NICE. Três seções foram realizadas em condições normais, com uma carga de 270 lbs e uma frequência de aquisição de 97.656Hz por 6 segundos. Dez seções onde os rolamentos apresentavam falha no anel externo foram executadas, três delas com uma carga de 270 lbs, também com uma frequência de aquisição de 97.656Hz por 6 segundos. As outras sete foram realizadas com cargas de 25, 50, 100, 150, 200, 250 e 300 lbs, respectivamente, com uma taxa de amostragem de 48.828Hz por 3 segundos. Sete seções foram realizadas com rolamentos com falhas no anel interno, com uma frequência de aquisição de 48.828Hz durante 3 segundos e cargas de 0, 50, 100, 150, 200, 250 e 300 lbs. Além dos dados citados, são fornecidos arquivos de análises dos dados e três aquisições de situações reais (de uma turbina de vento, de uma bomba de petróleo e de um globo). Os arquivos são disponibilizados no formato Matlab (.mat), contendo a carga, a rotação, a frequência de amostragem e um vetor com os dados de vibração.
+
+\subsection{PADERBORN}
+
+A base de dados referida como PADERBORN foi gerada e disponibilizada publicamente pela \textit{Chair of Design and Drive Technology} da Universidade Paderborn. A base foi elaborada com o intuito de ser um \textit{benchmark} para monitoramento de condições de rolamentos no artigo \cite{lessmeier2016condition}. O artigo descreve detalhadamente as falhas encontradas nos rolamentos e realizados experimentos de classificação para o diagnóstico das mesmas.
+
+O aparato para aquisição dos dados consiste de um motor elétrico, um medidor de torque, um módulo para teste de rolamentos (onde os rolamentos com diferentes condições são acopladas para geração dos dados), um volante de inércia e um motor de carga. Detalhes?? Inserir tabelas das cargas??
+
+No total, foram realizados experimentos com 32 rolamentos diferentes, onde 12 possuíam danos artificiais, 14 com danos obtidos em testes de tempo de duração, e 6 com rolamentos em condições normais com tempos de duração diferentes. Para cada rolamento, foram registrados dados para 4 diferentes condições de operação, com diferentes cargas e rotações, conforme tabela XXXX. 20 seções de aquisição de 4 segundos cada para cada configuração foram salvas em arquivos Matlab (.mat)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=40mm]{imagens/PADERBORN_Force.PNG}
+    \caption{PADERBORN - Aparato para Teste de Duração dos Rolamentos.}
+    \label{fig:PADERBORN_fail}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=20mm]{imagens/PADERBORN_Equipment.PNG}
+    \caption{PADERBORN - Aquisição de Dados.}
+    \label{fig:PADERBORN_eq}
+\end{figure}
+
+\section{Metodologia}
+
+Descrever a metodologia a ser utilizada.
+1 - Descrever o analisador; 2 - Listar e Descrever as formas de divisão utilizadas; 3 - Listar e descrever os classificadores utilizados; 4 - Descrever as configurações para os experimentos.
+
+\section{Experimentos}
+
+Descrever os resultados obtidos para os experimentos, com as diferentes divisões entre treinamento, validação e teste.
+
+\section{Comparação de Resultados}
+
+Apresentar comparativo dos resultados a fim de corroborar o viés de similaridade.
+
+\section{Conclusões}
+
+Conclusão.
+
+\bibliographystyle{aaai}
+\bibliography{references}
+
 \end{document}
