@@ -3,12 +3,9 @@ Class definition of MFPT Bearing dataset download and acquisitions extraction.
 """
 
 import urllib.request
-import os
 from database import Database_Download
 import scipy.io
 import numpy as np
-from os import listdir
-from os.path import isfile, join
 import pickle
 import os
 
@@ -29,13 +26,11 @@ class MFPT(Database_Download):
     directory name of the segmented files
   url : str
     website from the raw files are downloaded
-  sample_rate : int
-    represents the acquisitions sample rate
   conditions : dict
-    the keys represent the condition code and the values the condition name  
+    the keys represent the condition code and the values the condition name
   files : dict
     the keys represent the conditions_acquisition and the values are the files names
-  
+
   Methods
   -------
   download()
@@ -45,13 +40,14 @@ class MFPT(Database_Download):
   load()
     Load acquisitions previsously saved in picke file
   """
-  def __init__(self):
+  def __init__(self, debug = 0):
     self.rawfilesdir = "mfpt_raw"
     self.dirdest = "mfpt_seg"
     self.url="https://mfpt.org/wp-content/uploads/2020/02/MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
-    self.conditions = {"N":"normal", 
-              "I": "inner", 
+    self.conditions = {"N":"normal",
+              "I": "inner",
               "O": "outer"}
+    self.debug = debug
 
     """
     The MFPT dataset is divided into 3 kinds of states: normal state, inner race
@@ -64,7 +60,7 @@ class MFPT(Database_Download):
     and 300 lbs of load.
     """
     files_path = {}
-    
+
     # Normal
     files_path["Normal_0"] = os.path.join(self.rawfilesdir, "MFPT Fault Data Sets/1 - Three Baseline Conditions/baseline_1")
     files_path["Normal_1"] = os.path.join(self.rawfilesdir, "MFPT Fault Data Sets/1 - Three Baseline Conditions/baseline_2")
@@ -97,15 +93,15 @@ class MFPT(Database_Download):
     """
 
     url = self.url
-    
+
     dirname = self.rawfilesdir
     if not os.path.isdir(dirname):
       os.mkdir(dirname)
-    
+
     zip_name = "MFPT-Fault-Data-Sets-20200227T131140Z-001.zip"
 
     print("Downloading ZIP file")
-    
+
     urllib.request.urlretrieve(url, os.path.join(dirname, zip_name))
 
     print("Extracting files")
@@ -117,15 +113,15 @@ class MFPT(Database_Download):
     Extracts the acquisitions of each file in the dictionary files_names.
     The user must be careful because this function converts all files
     in the files_names in numpy arrays.
-    As large the number of entries in files_names 
+    As large the number of entries in files_names
     as large will be the space of memory necessary.
- 
+
     Returns
     -------
     acquisitions_data : dict
     Returns the sample rate, the sample size, the conditions dict, the destinations directory
     and the acquisitions dict, where the keys represent the bearing code, followed by the conditions, by an
-    algarism representing the setting and end with an algarism representing 
+    algarism representing the setting and end with an algarism representing
     the sample sequential. All features are separated by an underscore character.
     """
 
@@ -137,7 +133,7 @@ class MFPT(Database_Download):
         vibration_data_raw = matlab_file['bearing'][0][0][1]
       else:
         vibration_data_raw = matlab_file['bearing'][0][0][2]
-      
+
       vibration_data = np.array([ elem for singleList in vibration_data_raw for elem in singleList])
 
       acquisitions_dict[key] = vibration_data
@@ -152,13 +148,13 @@ class MFPT(Database_Download):
   def load(self):
     """
     Load the data set.
- 
+
     Returns
     -------
     acquisitions : dict
     Returns the sample rate, the sample size, the conditions dict, the destinations directory
     and the acquisitions dict, where the keys represent the bearing code, followed by the conditions, by an
-    algarism representing the setting and end with an algarism representing 
+    algarism representing the setting and end with an algarism representing
     the sample sequential. All features are separated by an underscore character.
     """
 
