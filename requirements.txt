@@ -1,4 +1,4 @@
 autopep8==1.5.2
 pip-chill==1.0.1
 pyunpack==0.2.2
-scikit-learn==0.24.1
+scikit-learn==1.0.1
